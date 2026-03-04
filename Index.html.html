@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+	<title></title>
+	<meta name="generator" content="LibreOffice 25.8.4.2 (Linux)"/>
+	<meta name="created" content="00:00:00"/>
+	<meta name="changed" content="00:00:00"/>
+	<script type="text/javascript" src="https://gc.kis.v2.scr.kaspersky-labs.com/FD126C42-EBFA-4E12-B309-BB3FDD723AC1/main.js?attr=MGBfBsVrLmorUw8V1z41wqHWTp1xmfYvEpJCvS5Lvf1ipqlz4DF8Mlv1I3ie5ivOqhInMRILyRG3lcWGUYRloRKrGIZ-LbY3nCfl12qxUqFJHfr1FFEjOFeX-pj33oeV-uzsAFfIMK9fOXvsV2nVAtEaV5Pzo3b4XChqIlT4FMNiJb-eRSWNpldp3aAChuKyy_e_ERulZ3ZsDJhDRnZtlVcyxjqSAB1j7zBrF1ft-at5bghK4_YLX9R1h2Nt1uKWxYaNO1lpS2FBRaHhRTAa2mdEZxX-HhkK2u6ZehDs9zG2toHmS71LcM228McvoSmROxd6Bke0Iai8vbZlGhtdi-to3MISvzEvUP5vcD4LaxKhxr9c_mR7cYPZDIhWn613F9nNjZALZc60QjLiMF-ojrY0EC8S9AJqlpOvKPVIwwDlzFerfUJRQVDcrr08P-wj4D1o4Es4g1DyO-Fl4Fxfyr5zeuERm9ruHpWyCwVmoGwUWXNaC-FpwTIUh7cfKb-WhUQPEAaNtEGYdbXcZI85fDSn4W7K5El-_9nh_3up5KO6xtICuguHMyaSb3TGj4olhguLaUXi09d4X7M7C-33CKNgpVahiR0Xtv_lVXjJQDGwSVwcQ-G_-ZOpWNUovf8u7S_gIYhKxpgFEy6w8pGh3rS9x4zyiBIDP21lrzZNH6t4fSnkOq84t5aRmxsz_VF3c-zhZDPZ6t5xS1dkmZ9JjT7wBRvVX4G1qMaBUIGTfjc" charset="UTF-8"></script><style type="text/css">
+		@page { size: 8.27in 11.69in; margin: 0.79in }
+		p { margin-bottom: 0.1in; line-height: 115%; background: transparent }
+		pre { font-size: 10pt; font-family: "Liberation Mono", monospace; background: transparent }
+	</style>
+</head>
+<body lang="en-US" link="#000080" vlink="#800000" dir="ltr"><pre>&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+&lt;head&gt;
+  &lt;meta charset=&quot;UTF-8&quot; /&gt;
+  &lt;title&gt;Click the Box Game&lt;/title&gt;
+  &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot; /&gt;
+  &lt;link rel=&quot;stylesheet&quot; href=&quot;style.css&quot; /&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;div class=&quot;page&quot;&gt;
+    &lt;header class=&quot;header&quot;&gt;
+      &lt;h1&gt;Click the Box&lt;/h1&gt;
+      &lt;p&gt;Tap the moving box as many times as you can in 30 seconds.&lt;/p&gt;
+    &lt;/header&gt;
+
+    &lt;main class=&quot;game-wrapper&quot;&gt;
+      &lt;section class=&quot;info-panel&quot;&gt;
+        &lt;div class=&quot;info-row&quot;&gt;
+          &lt;div class=&quot;info-item&quot;&gt;
+            &lt;span class=&quot;info-label&quot;&gt;Score&lt;/span&gt;
+            &lt;span id=&quot;score&quot; class=&quot;info-value&quot;&gt;0&lt;/span&gt;
+          &lt;/div&gt;
+          &lt;div class=&quot;info-item&quot;&gt;
+            &lt;span class=&quot;info-label&quot;&gt;Time&lt;/span&gt;
+            &lt;span id=&quot;time&quot; class=&quot;info-value&quot;&gt;30&lt;/span&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+
+        &lt;div class=&quot;controls&quot;&gt;
+          &lt;!-- Start button is used for both first start and restart --&gt;
+          &lt;button id=&quot;startBtn&quot; class=&quot;btn primary&quot;&gt;Start Game&lt;/button&gt;
+        &lt;/div&gt;
+      &lt;/section&gt;
+
+      &lt;!-- Game area where the box moves --&gt;
+      &lt;section id=&quot;gameArea&quot; class=&quot;game-area&quot;&gt;
+        &lt;div id=&quot;target&quot; class=&quot;target hidden&quot;&gt;&lt;/div&gt;
+
+        &lt;!-- Game over overlay --&gt;
+        &lt;div id=&quot;gameOverOverlay&quot; class=&quot;overlay hidden&quot;&gt;
+          &lt;div class=&quot;overlay-content&quot;&gt;
+            &lt;h2&gt;Game Over&lt;/h2&gt;
+            &lt;p&gt;Your final score:&lt;/p&gt;
+            &lt;p id=&quot;finalScore&quot; class=&quot;final-score&quot;&gt;0&lt;/p&gt;
+            &lt;button id=&quot;restartBtn&quot; class=&quot;btn secondary&quot;&gt;Play Again&lt;/button&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/section&gt;
+    &lt;/main&gt;
+
+    &lt;footer class=&quot;footer&quot;&gt;
+      &lt;p&gt;
+        Built with HTML, CSS, and JavaScript. Easy to modify and deploy.
+      &lt;/p&gt;
+    &lt;/footer&gt;
+  &lt;/div&gt;
+
+  &lt;script src=&quot;script.js&quot; defer&gt;&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</pre>
+</body>
+</html>

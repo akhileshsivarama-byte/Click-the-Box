@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+	<title></title>
+	<meta name="generator" content="LibreOffice 25.8.4.2 (Linux)"/>
+	<meta name="created" content="00:00:00"/>
+	<meta name="changed" content="00:00:00"/>
+	<script type="text/javascript" src="https://gc.kis.v2.scr.kaspersky-labs.com/FD126C42-EBFA-4E12-B309-BB3FDD723AC1/main.js?attr=Hr5I061WgV8eB60sfdpCtj2PSqEmVHs6siVKivpEdfOhktT3LjKdTjF0QOkX5VAEEX2I16IgS8mqSxOd6qUbc_0sJj6wLtFj5s8edzhMzrEk8XboERS_iZs5q44Ze0EMkxgFOV7ERo4rk-I6YQRAT2bscEzJsPNz64o0xshBp96Gr2qbaDmj0C3frx9g0uF11aQNC47mPVn5L25FN1T36x7v_-3wUuAVY7qK1l9C0yav2J1WpXh-e1snZy73Hv7z_1-lnO0QrL1CiimRS3kdo1fZMypDiFFcou1kryP-rHykO3smJ-ADBi2PQTeqODWOSEAozj_NE_YJ_8zG8AdPSOwhri5hfTE8afZWcC58KM3cgoHL6liHM5qXLHJBNwOIwjPvoROpbx7tuDJjRIHNAspsvQkmT5tIktEx6J7COgafbA0Ukk8UiWWm3MJ-WceGwZWeiEhClmQwA7mIUQ7-BGZxoKpq62K2dn07T-OfsR8nTolTdsM3vASGy9jYX-Hjhoi8W01UpNlpv5dmDzRtXDC_oYazbKP6EPcCtbk1THq5vrdyS2_8YzSYDIbzMwg5BuxYm_1cIzBxEcbvYMXvbMmxitp6JnpE35lV6nNXKL1R2uFHrjz6wfrPIpDw42HiGqNviqMlq9Ud-sAJxnPJ04EcApSbj-uxee6MjIiBznWIw2XvPTkqLvwLInOjN4dDmaaGxtWSi7ONcjxbHNX8NbBs_Wf6hKZXKGe-Ae1CAmg" charset="UTF-8"></script><style type="text/css">
+		@page { size: 8.27in 11.69in; margin: 0.79in }
+		p { margin-bottom: 0.1in; line-height: 115%; background: transparent }
+		pre { font-size: 10pt; font-family: "Liberation Mono", monospace; background: transparent }
+	</style>
+</head>
+<body lang="en-US" link="#000080" vlink="#800000" dir="ltr"><pre>// --- Basic game configuration ---
+const GAME_DURATION_SECONDS = 30; // Total game time
+const MOVE_INTERVAL_MS = 700; // How often the box moves (smaller = harder)
+
+// Cached DOM elements
+const scoreEl = document.getElementById(&quot;score&quot;);
+const timeEl = document.getElementById(&quot;time&quot;);
+const startBtn = document.getElementById(&quot;startBtn&quot;);
+const restartBtn = document.getElementById(&quot;restartBtn&quot;);
+const gameArea = document.getElementById(&quot;gameArea&quot;);
+const target = document.getElementById(&quot;target&quot;);
+const gameOverOverlay = document.getElementById(&quot;gameOverOverlay&quot;);
+const finalScoreEl = document.getElementById(&quot;finalScore&quot;);
+
+// Game state
+let score = 0;
+let timeRemaining = GAME_DURATION_SECONDS;
+let moveIntervalId = null;
+let countdownIntervalId = null;
+let isRunning = false;
+
+// Simple click sound using Web Audio API (no external files)
+let audioContext = null;
+function playClickSound() {
+  try {
+    // Create (or reuse) an audio context the first time we play a sound
+    if (!audioContext) {
+      audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    }
+
+    const duration = 0.08; // seconds
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+
+    oscillator.type = &quot;square&quot;;
+    oscillator.frequency.value = 880; // Hz (pitch)
+
+    // Quick fade out so it sounds more like a &quot;click&quot;
+    gainNode.gain.setValueAtTime(0.15, audioContext.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(
+      0.001,
+      audioContext.currentTime + duration
+    );
+
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+
+    oscillator.start();
+    oscillator.stop(audioContext.currentTime + duration);
+  } catch (e) {
+    // If audio fails (e.g. browser restriction), ignore silently
+  }
+}
+
+// Position the target at a random spot inside the game area
+function moveTargetToRandomPosition() {
+  const areaRect = gameArea.getBoundingClientRect();
+  const targetRect = target.getBoundingClientRect();
+
+  // Compute how far we can move while keeping the whole box visible
+  const maxX = areaRect.width - targetRect.width;
+  const maxY = areaRect.height - targetRect.height;
+
+  const randomX = Math.random() * maxX;
+  const randomY = Math.random() * maxY;
+
+  target.style.transform = `translate(${randomX}px, ${randomY}px)`;
+}
+
+// Start or restart the game
+function startGame() {
+  // Reset state
+  score = 0;
+  timeRemaining = GAME_DURATION_SECONDS;
+  isRunning = true;
+
+  scoreEl.textContent = score;
+  timeEl.textContent = timeRemaining.toString();
+
+  // Reset UI
+  target.classList.remove(&quot;hidden&quot;);
+  gameOverOverlay.classList.add(&quot;hidden&quot;);
+  startBtn.textContent = &quot;Restart&quot;;
+  startBtn.disabled = false;
+
+  // Clear existing timers if any (in case of restart)
+  if (moveIntervalId !== null) {
+    clearInterval(moveIntervalId);
+  }
+  if (countdownIntervalId !== null) {
+    clearInterval(countdownIntervalId);
+  }
+
+  // Immediately move target once, then keep moving it on a timer
+  moveTargetToRandomPosition();
+  moveIntervalId = setInterval(moveTargetToRandomPosition, MOVE_INTERVAL_MS);
+
+  // Countdown timer for the game duration
+  countdownIntervalId = setInterval(() =&gt; {
+    timeRemaining -= 1;
+    timeEl.textContent = timeRemaining.toString();
+
+    if (timeRemaining &lt;= 0) {
+      endGame();
+    }
+  }, 1000);
+}
+
+// End the game and show the game over screen
+function endGame() {
+  if (!isRunning) return; // Avoid double-ending
+
+  isRunning = false;
+
+  // Stop moving the target and the timer
+  if (moveIntervalId !== null) {
+    clearInterval(moveIntervalId);
+    moveIntervalId = null;
+  }
+  if (countdownIntervalId !== null) {
+    clearInterval(countdownIntervalId);
+    countdownIntervalId = null;
+  }
+
+  // Hide the target and show the overlay
+  target.classList.add(&quot;hidden&quot;);
+  finalScoreEl.textContent = score.toString();
+  gameOverOverlay.classList.remove(&quot;hidden&quot;);
+}
+
+// Handle clicking the moving box
+function handleTargetClick(event) {
+  if (!isRunning) {
+    return;
+  }
+
+  // Stop the click from bubbling up to the game area
+  event.stopPropagation();
+
+  // Increase score and update the UI
+  score += 1;
+  scoreEl.textContent = score.toString();
+
+  // Play a short &quot;click&quot; sound
+  playClickSound();
+
+  // Move the box immediately on click (feels more responsive)
+  moveTargetToRandomPosition();
+}
+
+// Optional: if the player taps/clicks empty space while game is running,
+// you could deduct points or just ignore. Here we simply ignore.
+// gameArea.addEventListener(&quot;click&quot;, () =&gt; { /* no-op */ });
+
+// Wire up buttons and target
+startBtn.addEventListener(&quot;click&quot;, () =&gt; {
+  // On first click, or any time after a game over, just startGame again
+  startGame();
+});
+
+restartBtn.addEventListener(&quot;click&quot;, () =&gt; {
+  gameOverOverlay.classList.add(&quot;hidden&quot;);
+  startGame();
+});
+
+target.addEventListener(&quot;click&quot;, handleTargetClick);
+
+// Initialize labels with default values
+timeEl.textContent = GAME_DURATION_SECONDS.toString();
+scoreEl.textContent = &quot;0&quot;;</pre>
+</body>
+</html>
